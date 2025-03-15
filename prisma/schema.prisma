@@ -1,0 +1,148 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+
+datasource db {
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  name     String
+  username String @unique
+  password String
+  phone    String @unique
+  roleId   Int
+  role     Role   @relation(fields: [roleId], references: [id])
+
+  studentId String? @unique // Mã sinh viên (chỉ áp dụng cho roleId == 1)
+  classId   Int? // Lớp của sinh viên (nếu là roleId == 1)
+
+  ExamSessionStudent     ExamSessionStudent[]
+  ExamSessionInvigilator ExamSessionInvigilator[]
+  SubjectClass           SubjectClass[]
+
+  @@index([roleId])
+}
+
+model Role {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  users User[]
+}
+
+model Subject {
+  id             Int            @id @default(autoincrement())
+  name           String         @unique
+  subjectClasses SubjectClass[]
+
+  Class Class[]
+}
+
+model Class {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  subjectId Int
+  subject   Subject @relation(fields: [subjectId], references: [id])
+
+  subjectClasses SubjectClass[]
+
+  @@index([subjectId])
+}
+
+model SubjectClass {
+  id        Int    @id @default(autoincrement())
+  subjectId Int
+  classId   Int
+  name      String @unique
+
+  subject                 Subject                   @relation(fields: [subjectId], references: [id])
+  class                   Class                     @relation(fields: [classId], references: [id])
+  ExamSessionSubjectClass ExamSessionSubjectClass[]
+  students                User[]
+  ExamSchedule            ExamSchedule[]
+
+  @@unique([subjectId, name])
+  @@index([subjectId])
+  @@index([classId])
+}
+
+model ExamRoom {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  ExamSession ExamSession[]
+}
+
+model ExamSchedule {
+  id   Int      @id @default(autoincrement())
+  date DateTime
+
+  ExamSession             ExamSession[]
+  ExamSessionSubjectClass ExamSessionSubjectClass[]
+
+  SubjectClass SubjectClass[]
+}
+
+model ExamSession {
+  id             Int @id @default(autoincrement())
+  examScheduleId Int
+  examRoomId     Int
+
+  examSchedule ExamSchedule @relation(fields: [examScheduleId], references: [id])
+  examRoom     ExamRoom     @relation(fields: [examRoomId], references: [id])
+
+  ExamSessionSubjectClass ExamSessionSubjectClass[]
+  ExamSessionInvigilator  ExamSessionInvigilator[]
+  ExamSessionStudent      ExamSessionStudent[]
+
+  status String @default("pending") // "pending", "ongoing", "grading", "completed", "canceled", "finalized"
+
+  @@index([examScheduleId])
+  @@index([examRoomId])
+}
+
+model ExamSessionSubjectClass {
+  id             Int @id @default(autoincrement())
+  examSessionId  Int
+  subjectClassId Int
+
+  examSession  ExamSession    @relation(fields: [examSessionId], references: [id])
+  subjectClass SubjectClass   @relation(fields: [subjectClassId], references: [id])
+  ExamSchedule ExamSchedule[]
+
+  @@unique([examSessionId, subjectClassId])
+  @@index([examSessionId])
+  @@index([subjectClassId])
+}
+
+model ExamSessionStudent {
+  id            Int    @id @default(autoincrement())
+  examSessionId Int
+  userId        Int
+  status        String @default("registered") // "registered", "present", "absent", "disqualified"
+
+  examSession ExamSession @relation(fields: [examSessionId], references: [id])
+  student     User        @relation(fields: [userId], references: [id])
+
+  @@unique([examSessionId, userId])
+  @@index([examSessionId])
+  @@index([userId])
+}
+
+model ExamSessionInvigilator {
+  id            Int    @id @default(autoincrement())
+  examSessionId Int
+  invigilatorId Int
+  role          String @default("assistant") // "chief", "assistant"
+
+  examSession ExamSession @relation(fields: [examSessionId], references: [id])
+  invigilator User        @relation(fields: [invigilatorId], references: [id])
+
+  @@unique([examSessionId, invigilatorId])
+  @@index([examSessionId])
+  @@index([invigilatorId])
+}
