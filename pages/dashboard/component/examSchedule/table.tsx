@@ -1,8 +1,9 @@
-import { Table } from "antd";
+import { message, Table } from "antd";
 import { useState, useEffect } from "react";
 
 const ExamScheduleTable = () => {
     const [data, setData] = useState([])
+    const [loading, setLoading] = useState(false)
     const columns = [
         {
             title: 'Mã môn học',
@@ -21,20 +22,21 @@ const ExamScheduleTable = () => {
         },
     ]
 
-    const fetchData = async () => {
-        const res = await fetch('/api/getExamSchedule')
-        const data = await res.json()
-        setData(data)
+    const fetchData = () => {
+        setLoading(true)
+        fetch('/api/getExamSchedule').then(res => res.json()).then(res => {
+            setData(res || [])
+        }).catch(err => message.error(err.message)).finally(() => setLoading(false))
     }
 
     useEffect(() => {
         fetchData()
     }, [])
-    
+
     return (
-        <Table columns={columns} dataSource={data} />
+        <Table loading={loading} columns={columns} dataSource={data} />
     )
-  
+
 };
 
 export default ExamScheduleTable;

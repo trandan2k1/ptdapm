@@ -4,7 +4,7 @@ import { Layout, Menu, theme } from 'antd';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import ExamSchedule from './component/examSchedule';
-const { Header, Content, Footer, Sider } = Layout;
+const { Header, Content, Sider } = Layout;
 
 const Dashboard = () => {
   const {
