@@ -1,36 +1,52 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
   provider             = "mysql"
   url                  = env("DATABASE_URL")
-  referentialIntegrity = "prisma"
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  name     String
-  username String @unique
-  password String
-  phone    String @unique
-  roleId   Int
-  role     Role   @relation(fields: [roleId], references: [id])
+  id        Int    @id @default(autoincrement())
+  name      String
+  username  String @unique
+  password  String
+  phone     String @unique
+  roleId    Int
+  role      Role   @relation(fields: [roleId], references: [id])
 
   studentId String? @unique // Mã sinh viên (chỉ áp dụng cho roleId == 1)
-  classId   Int? // Lớp của sinh viên (nếu là roleId == 1)
+  classId   Int?    // Lớp của sinh viên (nếu là roleId == 1)
 
+  // Quan hệ với các bảng khác
   ExamSessionStudent     ExamSessionStudent[]
   ExamSessionInvigilator ExamSessionInvigilator[]
   SubjectClass           SubjectClass[]
+  ExamResult             ExamResult[]
+  
+  departmentId Int? // Liên kết với bộ môn
+  department   Department? @relation(fields: [departmentId], references: [id])
+  
+  // Lưu trạng thái đăng nhập
+  UserSession UserSession[]
+
+  // Giảng viên có thể có thông tin cá nhân riêng
+  PersonalInfo PersonalInfo?
 
   @@index([roleId])
+}
+
+model Department {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  users User[]
 }
 
 model Role {
   id    Int    @id @default(autoincrement())
   name  String @unique
+  code  String @unique
   users User[]
 }
 
@@ -38,16 +54,14 @@ model Subject {
   id             Int            @id @default(autoincrement())
   name           String         @unique
   subjectClasses SubjectClass[]
-
-  Class Class[]
+  Class          Class[]
 }
 
 model Class {
-  id        Int     @id @default(autoincrement())
-  name      String  @unique
-  subjectId Int
-  subject   Subject @relation(fields: [subjectId], references: [id])
-
+  id         Int     @id @default(autoincrement())
+  name       String  @unique
+  subjectId  Int
+  subject    Subject @relation(fields: [subjectId], references: [id])
   subjectClasses SubjectClass[]
 
   @@index([subjectId])
@@ -57,52 +71,50 @@ model SubjectClass {
   id        Int    @id @default(autoincrement())
   subjectId Int
   classId   Int
-  name      String @unique
 
-  subject                 Subject                   @relation(fields: [subjectId], references: [id])
-  class                   Class                     @relation(fields: [classId], references: [id])
-  ExamSessionSubjectClass ExamSessionSubjectClass[]
-  students                User[]
-  ExamSchedule            ExamSchedule[]
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  class     Class   @relation(fields: [classId], references: [id])
+  // Liên kết đến bảng kết nối giữa phiên thi và môn học – lớp
+  examSessionSubjectClasses ExamSessionSubjectClass[]
+  students                  User[]
+  ExamResult                ExamResult[]
 
-  @@unique([subjectId, name])
   @@index([subjectId])
   @@index([classId])
 }
 
 model ExamRoom {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-
-  ExamSession ExamSession[]
+  id            Int            @id @default(autoincrement())
+  name          String         @unique
+  examSessions  ExamSession[]
 }
 
+// Bảng này dùng để quản lý lịch thi chung theo ngày.
+// Mỗi lịch thi sẽ có nhiều phiên thi (ExamSession) với thời gian và phòng khác nhau.
 model ExamSchedule {
-  id   Int      @id @default(autoincrement())
-  date DateTime
-
-  ExamSession             ExamSession[]
-  ExamSessionSubjectClass ExamSessionSubjectClass[]
-
-  SubjectClass SubjectClass[]
+  id           Int           @id @default(autoincrement())
+  date         DateTime      
+  examSessions ExamSession[]
 }
 
 model ExamSession {
-  id             Int @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
   examScheduleId Int
   examRoomId     Int
-
+  startTime      DateTime // Giờ bắt đầu thi
+  endTime        DateTime? // Giờ kết thúc thi (nếu có)
+  status         String   // "pending", "ongoing", "completed"
+  
   examSchedule ExamSchedule @relation(fields: [examScheduleId], references: [id])
   examRoom     ExamRoom     @relation(fields: [examRoomId], references: [id])
 
-  ExamSessionSubjectClass ExamSessionSubjectClass[]
-  ExamSessionInvigilator  ExamSessionInvigilator[]
-  ExamSessionStudent      ExamSessionStudent[]
-
-  status String @default("pending") // "pending", "ongoing", "grading", "completed", "canceled", "finalized"
-
-  @@index([examScheduleId])
-  @@index([examRoomId])
+  // Mỗi phiên thi có thể gắn với nhiều môn học - lớp
+  examSessionSubjectClasses ExamSessionSubjectClass[]
+  
+  // Quan hệ với các bảng ghi nhận sinh viên và giảng viên tham gia
+  students    ExamSessionStudent[]
+  invigilators ExamSessionInvigilator[]
+  ExamResult  ExamResult[]
 }
 
 model ExamSessionSubjectClass {
@@ -110,9 +122,8 @@ model ExamSessionSubjectClass {
   examSessionId  Int
   subjectClassId Int
 
-  examSession  ExamSession    @relation(fields: [examSessionId], references: [id])
-  subjectClass SubjectClass   @relation(fields: [subjectClassId], references: [id])
-  ExamSchedule ExamSchedule[]
+  examSession  ExamSession  @relation(fields: [examSessionId], references: [id])
+  subjectClass SubjectClass @relation(fields: [subjectClassId], references: [id])
 
   @@unique([examSessionId, subjectClassId])
   @@index([examSessionId])
@@ -145,4 +156,44 @@ model ExamSessionInvigilator {
   @@unique([examSessionId, invigilatorId])
   @@index([examSessionId])
   @@index([invigilatorId])
+}
+
+model ExamResult {
+  id             Int    @id @default(autoincrement())
+  examSessionId  Int
+  subjectClassId Int
+  studentId      Int
+  score          Float?
+  status         String @default("pending") // "pending", "graded", "finalized"
+
+  examSession  ExamSession  @relation(fields: [examSessionId], references: [id])
+  subjectClass SubjectClass @relation(fields: [subjectClassId], references: [id])
+  student      User         @relation(fields: [studentId], references: [id])
+
+  @@unique([examSessionId, subjectClassId, studentId])
+  @@index([examSessionId])
+  @@index([subjectClassId])
+  @@index([studentId])
+}
+
+model UserSession {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  loginAt   DateTime @default(now())
+  ipAddress String
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model PersonalInfo {
+  id        Int    @id @default(autoincrement())
+  userId    Int    @unique
+  email     String @unique
+  address   String
+  birthdate DateTime
+  department String
+
+  user User @relation(fields: [userId], references: [id])
 }

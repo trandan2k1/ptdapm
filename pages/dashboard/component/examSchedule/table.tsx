@@ -1,5 +1,6 @@
 import { message, Table } from "antd";
 import { useState, useEffect } from "react";
+import '@ant-design/v5-patch-for-react-19';
 
 const ExamScheduleTable = () => {
     const [data, setData] = useState([])
@@ -22,15 +23,22 @@ const ExamScheduleTable = () => {
         },
     ]
 
-    const fetchData = () => {
-        setLoading(true)
-        fetch('/api/getExamSchedule').then(res => res.json()).then(res => {
-            setData(res || [])
-        }).catch(err => message.error(err.message)).finally(() => setLoading(false))
-    }
+    const fetchExamSchedule = async () => {
+        try {
+          const response = await fetch('/api/getExamSchedule');
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error);
+          }
+          const data = await response.json();
+          setData(data || []);
+        } catch (error: any) {
+            message.error(error.message);
+        }
+    };
 
     useEffect(() => {
-        fetchData()
+        fetchExamSchedule()
     }, [])
 
     return (

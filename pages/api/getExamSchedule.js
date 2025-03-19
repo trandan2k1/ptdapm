@@ -9,8 +9,10 @@ export default async function handler(req, res) {
   if (!session) {
     return res.status(401).json({ error: "Bạn cần đăng nhập" });
   }
-
-  if (session.user.role !== "Admin") {
+  console.log(session);
+  console.log(session.user);
+  const role = JSON.parse(session.user.role);
+  if (role.code !== "AD") {
     return res
       .status(403)
       .json({ error: "Bạn không có quyền thực hiện hành động này" });

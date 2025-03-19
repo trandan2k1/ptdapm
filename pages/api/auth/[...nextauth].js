@@ -16,13 +16,13 @@ export const authOptions = {
           where: { username: credentials.username },
           include: { role: true },
         });
-
+        
         if (user && bcrypt.compareSync(credentials.password, user.password)) {
           return {
             id: user.id,
             name: user.name,
             username: user.username,
-            role: user.role.name,
+            role: JSON.stringify(user.role),
           };
         }
         return null;
