@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { HomeOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { BookOutlined, CalendarOutlined, HomeOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, theme, Dropdown, Button, Avatar } from 'antd';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -16,9 +16,15 @@ const Dashboard = () => {
 
   const items = [
     {
+      key: '3',
+      label: 'Quản lý môn thi',
+      icon: <BookOutlined />,
+      onClick: () => setKey('3')
+    },
+    {
       key: '1',
       label: 'Quản lý lịch thi',
-      icon: <HomeOutlined />,
+      icon: <CalendarOutlined />,
       onClick: () => setKey('1')
     },
     {
@@ -27,12 +33,6 @@ const Dashboard = () => {
       icon: <UserOutlined />,
       onClick: () => setKey('2')
     },
-    {
-      key: '3',
-      label: 'Quản lý môn thi',
-      icon: <UserOutlined />,
-      onClick: () => setKey('3')
-    }
   ]
 
   useEffect(() => {
@@ -41,13 +41,13 @@ const Dashboard = () => {
       router.push("/auth/signin");
     }
   }, [session, status, router]);
-  const [key, setKey] = useState('1');
+  const [key, setKey] = useState('3');
   return (
     <Layout className='h-screen   '>
       <Sider breakpoint="lg" collapsedWidth="0" className='h-screen'>
         <div className="h-[64px]" />
         <div style={{ display: 'flex', flexDirection: 'column'  }}>
-          <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']} className='h-[calc(100vh-64px)]' items={items} >
+          <Menu theme="dark" mode="inline" defaultSelectedKeys={['3']} className='h-[calc(100vh-64px)]' items={items} >
             {/* <Menu.Item key="1" icon={<HomeOutlined />} onClick={() => setKey('1')}>Quản lý lịch thi</Menu.Item>
             <Menu.Item key="2" icon={<UserOutlined />} onClick={() => setKey('2')}>Quản lý phòng thi</Menu.Item> */}
             <Menu.Item key="3" icon={<LogoutOutlined />} className='!fixed !bottom-0 !bg-transparent' onClick={() => {
@@ -86,7 +86,7 @@ const Dashboard = () => {
           </Dropdown>
         </Header>
         <Content style={{ margin: '24px 16px 0' }} >
-          <div style={{ padding: 24, minHeight: 360, background: colorBgContainer, borderRadius: borderRadiusLG }}>
+          <div style={{ padding: 24, minHeight: 360, background: colorBgContainer, borderRadius: borderRadiusLG }} className='h-[calc(100vh-100px)]'>
             {key === '1' && <ExamSchedule />}
             {key === '3' && <SubjectManagement />}
             {/* {key === '2' && <ExamRoom />} */}

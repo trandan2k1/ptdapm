@@ -153,21 +153,12 @@ async function main() {
   });
   const examRooms = await prisma.examRoom.findMany();
 
-  // Tạo lịch thi (ExamSchedule)
-  const examSchedules = await Promise.all(
-    Array.from({ length: 3 }, (_, i) =>
-      prisma.examSchedule.create({
-        data: { date: new Date(`2025-06-0${i + 1}T09:00:00Z`) }
-      })
-    )
-  );
 
   // Tạo kỳ thi (ExamSession) với startTime và endTime
   const examSessions = await Promise.all(
     examSchedules.map(async (schedule, i) =>
       prisma.examSession.create({
         data: {
-          examScheduleId: schedule.id,
           examRoomId: examRooms[i % examRooms.length].id,
           status: "pending",
           startTime: schedule.date,

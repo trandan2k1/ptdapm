@@ -18,26 +18,6 @@ export default async function handler(req, res) {
       .json({ error: "Bạn không có quyền thực hiện hành động này" });
   }
 
-  // model SubjectClass {
-  //   id        Int    @id @default(autoincrement())
-  //   subjectId Int
-  //   classId   Int
-  //   name      String @unique
-  
-  //   subject   Subject @relation(fields: [subjectId], references: [id])
-  //   class     Class   @relation(fields: [classId], references: [id])
-  //   // Liên kết đến bảng kết nối giữa phiên thi và môn học – lớp
-  //   examSessionSubjectClasses ExamSessionSubjectClass[]
-  //   students                  User[]
-  //   ExamResult                ExamResult[]
-  
-  //   @@unique([subjectId, name])
-  //   @@index([subjectId])
-  //   @@index([classId])
-  // }
-
-  // Lấy danh sách subjectClass và liên kết với subject và class group by classId
-
   const subjectClassList = await prisma.subjectClass.findMany({
     include: {
       subject: true,

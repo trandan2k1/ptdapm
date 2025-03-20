@@ -18,6 +18,7 @@ model User {
 
   studentId String? @unique // Mã sinh viên (chỉ áp dụng cho roleId == 1)
   classId   Int?    // Lớp của sinh viên (nếu là roleId == 1)
+  class     Class?  @relation(fields: [classId], references: [id])
 
   // Quan hệ với các bảng khác
   ExamSessionStudent     ExamSessionStudent[]
@@ -54,17 +55,13 @@ model Subject {
   id             Int            @id @default(autoincrement())
   name           String         @unique
   subjectClasses SubjectClass[]
-  Class          Class[]
 }
 
 model Class {
   id         Int     @id @default(autoincrement())
   name       String  @unique
-  subjectId  Int
-  subject    Subject @relation(fields: [subjectId], references: [id])
   subjectClasses SubjectClass[]
-
-  @@index([subjectId])
+  users      User[]
 }
 
 model SubjectClass {
@@ -89,14 +86,6 @@ model ExamRoom {
   examSessions  ExamSession[]
 }
 
-// Bảng này dùng để quản lý lịch thi chung theo ngày.
-// Mỗi lịch thi sẽ có nhiều phiên thi (ExamSession) với thời gian và phòng khác nhau.
-model ExamSchedule {
-  id           Int           @id @default(autoincrement())
-  date         DateTime      
-  examSessions ExamSession[]
-}
-
 model ExamSession {
   id             Int      @id @default(autoincrement())
   examScheduleId Int
@@ -105,7 +94,6 @@ model ExamSession {
   endTime        DateTime? // Giờ kết thúc thi (nếu có)
   status         String   // "pending", "ongoing", "completed"
   
-  examSchedule ExamSchedule @relation(fields: [examScheduleId], references: [id])
   examRoom     ExamRoom     @relation(fields: [examRoomId], references: [id])
 
   // Mỗi phiên thi có thể gắn với nhiều môn học - lớp
