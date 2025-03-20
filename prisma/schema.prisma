@@ -88,7 +88,6 @@ model ExamRoom {
 
 model ExamSession {
   id             Int      @id @default(autoincrement())
-  examScheduleId Int
   examRoomId     Int
   startTime      DateTime // Giờ bắt đầu thi
   endTime        DateTime? // Giờ kết thúc thi (nếu có)

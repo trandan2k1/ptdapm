@@ -4,10 +4,14 @@ import '@ant-design/v5-patch-for-react-19';
 import moment from 'moment';
 import { EditOutlined } from '@ant-design/icons';
 import Link from "next/link";
+import FormCreate from "./formCreate";
+import DrawerDetail from "./detail";
 
 const ExamScheduleTable = () => {
     const [data, setData] = useState([])
     const [loading, setLoading] = useState(false)
+    const [open, setOpen] = useState(false)
+    const [openDetail, setOpenDetail] = useState(false)
     const columns: any = [
         {
             title: 'Mã lớp môn học',
@@ -15,7 +19,7 @@ const ExamScheduleTable = () => {
             render: (record: any) => { 
                 const r = record.examSessionSubjectClasses?.[0]?.subjectClass;
                 const code = r.subject?.name?.split(" ").map((word: string) => word[0]).join("").toUpperCase();
-                return <Link href={`/subject-class/${r._id}`}>{code + ' - ' + r.class?.name}</Link>
+                return <a onClick={() => { setOpenDetail(record)}} href="#">{code + ' - ' + r.class?.name}</a>
             }
         },
         {
@@ -55,7 +59,9 @@ const ExamScheduleTable = () => {
 
     const fetchExamSchedule = async () => {
         try {
+            setLoading(true)
           const response = await fetch('/api/examSchedule/getExamSchedule');
+          setLoading(false)
           if (!response.ok) {
             const error = await response.json();
             throw new Error(error.error);
@@ -67,12 +73,26 @@ const ExamScheduleTable = () => {
         }
     };
 
+
+
     useEffect(() => {
         fetchExamSchedule()
     }, [])
+    
 
     return (
+        <>
+        <Flex justify="space-between" align="center">
+            <h1 className="text-2xl font-bold">Lịch thi</h1>
+            <Button type="primary" onClick={() => { setOpen(true) }} >
+                Thêm mới
+            </Button>
+        </Flex>
+        <FormCreate open={open} onClose={() => setOpen(false)} refreshTable={fetchExamSchedule} />
+            <DrawerDetail open={openDetail} onClose={() => setOpenDetail(false)} />
         <Table loading={loading} columns={columns} dataSource={data} />
+        </>
+
     )
 
 };

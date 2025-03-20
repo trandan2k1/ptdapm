@@ -18,12 +18,20 @@ export default async function handler(req, res) {
       .json({ error: "Bạn không có quyền thực hiện hành động này" });
   }
 
+
   const subjectClassList = await prisma.subjectClass.findMany({
     include: {
       subject: true,
-      class: true, // Lấy thông tin class để có class.name
+      class: true,
     },
   });
+
+  const { justSubjectClass } = req.query;
+
+  if (justSubjectClass) { 
+    return res.status(200).json(subjectClassList);
+  }
+
   
   // Nhóm dữ liệu theo tên lớp (class.name)
   const groupedData = Object.values(

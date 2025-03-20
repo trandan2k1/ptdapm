@@ -15,7 +15,6 @@ async function main() {
   await prisma.examSessionInvigilator.deleteMany();
   await prisma.examSessionSubjectClass.deleteMany();
   await prisma.examSession.deleteMany();
-  await prisma.examSchedule.deleteMany();
   await prisma.examRoom.deleteMany();
   await prisma.subjectClass.deleteMany();
   await prisma.class.deleteMany();
@@ -107,13 +106,12 @@ async function main() {
   const subjectsData = ["Giải tích", "An ninh mạng", "Hệ điều hành", "Cơ sở dữ liệu", "Xác suất thống kê", "Lý thuyết đồ thị", "Tối ưu hóa", "Trí tuệ nhân tạo", "Mạng máy tính", "An toàn thông tin"];
   await prisma.subject.createMany({ data: subjectsData.map(name => ({ name })) });
   const subjects = await prisma.subject.findMany();
-
   // Tạo lớp học
   const classesData = ["CNTT01", "CNTT02", "ANM01", "ANM02", "CNTT03", "CNTT04", "CNTT05", "CNTT06", "CNTT07", "CNTT08"];
   const classes = await Promise.all(
     classesData.map(async (name, index) =>
       prisma.class.create({
-        data: { name, subjectId: subjects[index % subjects.length].id }
+        data: { name}
       })
     )
   );
@@ -140,7 +138,7 @@ async function main() {
     classes.map(async (classObj, index) =>
       prisma.subjectClass.create({
         data: {
-          subjectId: classObj.subjectId,
+          subjectId: subjects[index % subjects.length].id,
           classId: classObj.id
         }
       })
@@ -156,13 +154,13 @@ async function main() {
 
   // Tạo kỳ thi (ExamSession) với startTime và endTime
   const examSessions = await Promise.all(
-    examSchedules.map(async (schedule, i) =>
+    examRooms.map(async (examRoom, index) =>
       prisma.examSession.create({
         data: {
-          examRoomId: examRooms[i % examRooms.length].id,
+          examRoomId: examRoom.id,
           status: "pending",
-          startTime: schedule.date,
-          endTime: new Date(new Date(schedule.date).getTime() + 2 * 60 * 60 * 1000)
+          startTime: new Date(new Date().getTime() + index * 2 * 60 * 60 * 1000),
+          endTime: new Date(new Date(new Date().getTime() + index * 2 * 60 * 60 * 1000).getTime() + 2 * 60 * 60 * 1000)
         }
       })
     )

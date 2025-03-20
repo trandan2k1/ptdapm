@@ -2,7 +2,7 @@ import { Button, Flex, Input, message, Table } from "antd";
 import { useState, useEffect } from "react";
 import SubjectManagementFormCreate from "./formCreate";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { headerTitle } from './../../../../../map-dashboard-admin/src/Recoils/Atoms/app';
+
 const SubjectManagementTable = () => {
     const [data, setData] = useState([]);
     const [dataSrc, setDataSrc] = useState([]);

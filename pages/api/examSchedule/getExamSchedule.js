@@ -35,12 +35,19 @@ export default async function handler(req, res) {
                   subjectClass: {
                     select: {
                       subject: {
-                        select: { name: true }, // Chỉ lấy tên môn học
+                        select: { name: true }, 
                       },
                       class: {
-                        select: { name: true }, // Chỉ lấy tên lớp
+                        select: { name: true }, 
                       },
                     },
+                  },
+                },
+              },
+              students: {
+                select: {
+                  student: {
+                    select: { name: true, id: true },
                   },
                 },
               },
