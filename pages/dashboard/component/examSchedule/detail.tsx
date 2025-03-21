@@ -50,7 +50,7 @@ const DrawerDetail = ({open, onClose}: {
                     <Table 
                         columns={columns} 
                         dataSource={open.students}
-                        rowKey={(record) => record.student.id}
+                        rowKey={(record: any) => record.student.id}
                         pagination={false}
                     />
                 </>

@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 
 const SubjectManagementFormCreate = ({ open, onClose, refreshData }: any) => {
     const [form] = Form.useForm();
-    const [classOptions, setClassOptions] = useState([]);
-    const [subjectOptions, setSubjectOptions] = useState([]);
+    const [classOptions, setClassOptions] = useState<any[]>([]);
+    const [subjectOptions, setSubjectOptions] = useState<any[]>([]);
     const [newClass, setNewClass] = useState("");
     const [newSubject, setNewSubject] = useState("");
     const [loading, setLoading] = useState(false);
