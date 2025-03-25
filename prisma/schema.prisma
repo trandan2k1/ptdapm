@@ -29,9 +29,6 @@ model User {
   departmentId Int? // Liên kết với bộ môn
   department   Department? @relation(fields: [departmentId], references: [id])
   
-  // Lưu trạng thái đăng nhập
-  UserSession UserSession[]
-
   // Giảng viên có thể có thông tin cá nhân riêng
   PersonalInfo PersonalInfo?
 
@@ -161,17 +158,6 @@ model ExamResult {
   @@index([examSessionId])
   @@index([subjectClassId])
   @@index([studentId])
-}
-
-model UserSession {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  loginAt   DateTime @default(now())
-  ipAddress String
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@index([userId])
 }
 
 model PersonalInfo {

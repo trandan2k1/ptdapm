@@ -108,7 +108,7 @@ const SubjectManagementTable = () => {
     return (
         <>
             <Flex justify="space-between" className="w-full">
-                <h1 className="text-2xl font-bold">Môn thi</h1>
+                <h1 className="text-2xl font-bold">Quản lý môn học</h1>
                 <Button type="primary" onClick={() => setVisible(true)}>
                     Thêm mới
                 </Button>

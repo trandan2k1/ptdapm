@@ -8,7 +8,7 @@ const AutocompleteUser = ({ roleId, onSelect }: any) => {
     const [debouncedSearchValue, setDebouncedSearchValue] = useState<string>("");
 
     const fetchStudent = async () => {
-        const response = await fetch(`/api/user/findStudent?name=${debouncedSearchValue}&roleId=${roleId}`);
+        const response = await fetch(`/api/user/findUser?name=${debouncedSearchValue}&roleId=${roleId}`);
         const data = await response.json();
         setOptions(data?.map((item: any) => ({
             label: item.name + " - " + item.studentId,

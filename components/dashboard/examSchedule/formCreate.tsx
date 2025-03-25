@@ -1,27 +1,6 @@
 import { Form, Select, DatePicker, Button, Drawer, Modal, Row, Col, message } from "antd"
 import dayjs from "dayjs";
 import { useEffect, useState } from "react"
-import AutocompleteStudent from "../autocompleteStudent";
-import AutocompleteUser from "../autocompleteStudent";
-import { ROLE_STUDENT } from "@/utils/const";
-
-// model ExamSession {
-//     id             Int      @id @default(autoincrement())
-//     examRoomId     Int
-//     startTime      DateTime // Giờ bắt đầu thi
-//     endTime        DateTime? // Giờ kết thúc thi (nếu có)
-//     status         String   // "pending", "ongoing", "completed"
-
-//     examRoom     ExamRoom     @relation(fields: [examRoomId], references: [id])
-
-//     // Mỗi phiên thi có thể gắn với nhiều môn học - lớp
-//     examSessionSubjectClasses ExamSessionSubjectClass[]
-
-//     // Quan hệ với các bảng ghi nhận sinh viên và giảng viên tham gia
-//     students    ExamSessionStudent[]
-//     invigilators ExamSessionInvigilator[]
-//     ExamResult  ExamResult[]
-//   }
 
 
 const FormCreate = ({ open, onClose, refreshTable }: { open: boolean, onClose: () => void, refreshTable: () => void }) => {
@@ -33,7 +12,7 @@ const FormCreate = ({ open, onClose, refreshTable }: { open: boolean, onClose: (
     const fetchExamRoom = async () => {
         const response = await fetch('/api/examSchedule/getExamRoom')
         const data = await response.json()
-        setExamRoomOption(data?.map((item: any) => ({
+        setExamRoomOption(data?.map?.((item: any) => ({
             label: item.name,
             value: item.id
         })))
@@ -49,7 +28,7 @@ const FormCreate = ({ open, onClose, refreshTable }: { open: boolean, onClose: (
     const fetchSubjectClass = async () => {
         const response = await fetch('/api/subject/getSubjectClass?justSubjectClass=true')
         const data = await response.json()
-        setSubjectClassOption(data?.map((item: any) => ({
+        setSubjectClassOption(data?.map?.((item: any) => ({
             label: item.subject?.name?.split(" ").map((word: string) => word[0]).join("").toUpperCase() + "-" + item.class?.name,
             value: item.id
         })))
@@ -81,7 +60,7 @@ const FormCreate = ({ open, onClose, refreshTable }: { open: boolean, onClose: (
         }
     }
     return (
-        <Modal footer={false} title="Thêm lịch thi" open={open} onClose={onClose} centered>
+        <Modal footer={false} title="Thêm lịch thi" open={open} onClose={onClose} onCancel={onClose} centered>
             <Form form={form} layout="vertical" onFinish={handleFinish}>
                 <Form.Item name="examRoomId" label="Phòng thi">
                     <Select placeholder="Chọn phòng thi" allowClear filterOption={(input, option) =>

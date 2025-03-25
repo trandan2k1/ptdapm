@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import '@ant-design/v5-patch-for-react-19';
 import moment from 'moment';
 import { EditOutlined } from '@ant-design/icons';
-import Link from "next/link";
 import FormCreate from "./formCreate";
 import DrawerDetail from "./detail";
 
@@ -11,7 +10,7 @@ const ExamScheduleTable = () => {
     const [data, setData] = useState([])
     const [loading, setLoading] = useState(false)
     const [open, setOpen] = useState(false)
-    const [openDetail, setOpenDetail] = useState(false)
+    const [openDetail, setOpenDetail] = useState(null)
     const columns: any = [
         {
             title: 'Mã lớp môn học',
@@ -31,7 +30,9 @@ const ExamScheduleTable = () => {
             title: "Trạng thái",
             key: "status",
             render: (r: any) => {
-                return <Tag color={r.status === "pending" ? "warning" : "success"}>{r.status}</Tag>
+                return      <Tag color={r.status === 'pending' ? 'orange' : 'green'}>
+                {r.status === 'pending' ? 'Chưa thi' : 'Hoàn thành'}
+            </Tag>
             }
         },
         {
@@ -83,13 +84,13 @@ const ExamScheduleTable = () => {
     return (
         <>
         <Flex justify="space-between" align="center">
-            <h1 className="text-2xl font-bold">Lịch thi</h1>
+            <h1 className="text-2xl font-bold">Quản lý lịch thi</h1>
             <Button type="primary" onClick={() => { setOpen(true) }} >
                 Thêm mới
             </Button>
         </Flex>
         <FormCreate open={open} onClose={() => setOpen(false)} refreshTable={fetchExamSchedule} />
-            <DrawerDetail open={openDetail} onClose={() => setOpenDetail(false)} />
+        <DrawerDetail open={openDetail} onClose={() => setOpenDetail(null)} />
         <Table loading={loading} columns={columns} dataSource={data} />
         </>
 

@@ -9,7 +9,6 @@ async function main() {
 
   // Xóa toàn bộ dữ liệu cũ theo thứ tự phụ thuộc
   await prisma.examResult.deleteMany();
-  await prisma.userSession.deleteMany();
   await prisma.personalInfo.deleteMany();
   await prisma.examSessionStudent.deleteMany();
   await prisma.examSessionInvigilator.deleteMany();
@@ -107,7 +106,7 @@ async function main() {
   await prisma.subject.createMany({ data: subjectsData.map(name => ({ name })) });
   const subjects = await prisma.subject.findMany();
   // Tạo lớp học
-  const classesData = ["CNTT01", "CNTT02", "ANM01", "ANM02", "CNTT03", "CNTT04", "CNTT05", "CNTT06", "CNTT07", "CNTT08"];
+  const classesData = ["CNTT01", "CNTT02", "ANM01", "ANM02", "CNTT03", "CNTT04", "CNTT05"];
   const classes = await Promise.all(
     classesData.map(async (name, index) =>
       prisma.class.create({

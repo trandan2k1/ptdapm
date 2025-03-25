@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 const { Title } = Typography;
 
 const DrawerDetail = ({open, onClose}: {
-    open: any, // Should be the data object or false
+    open: any,
     onClose: () => void
 }) => {
     const columns = [
@@ -36,7 +36,7 @@ const DrawerDetail = ({open, onClose}: {
                         </Descriptions.Item>
                         <Descriptions.Item label="Trạng thái">
                             <Tag color={open.status === 'pending' ? 'orange' : 'green'}>
-                                {open.status === 'pending' ? 'Chờ xử lý' : 'Hoàn thành'}
+                                {open.status === 'pending' ? 'Chưa thi' : 'Hoàn thành'}
                             </Tag>
                         </Descriptions.Item>
                         <Descriptions.Item label="Môn học" span={2}>
