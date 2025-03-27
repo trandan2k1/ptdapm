@@ -2,7 +2,6 @@ import { Form, Select, DatePicker, Button, Drawer, Modal, Row, Col, message } fr
 import dayjs from "dayjs";
 import { useEffect, useState } from "react"
 
-
 const FormCreate = ({ open, onClose, refreshTable }: { open: boolean, onClose: () => void, refreshTable: () => void }) => {
     const [subjectClassOption, setSubjectClassOption] = useState<any[]>([]);
     const [examRoomOption, setExamRoomOption] = useState<any[]>([]);
@@ -10,12 +9,20 @@ const FormCreate = ({ open, onClose, refreshTable }: { open: boolean, onClose: (
     const [loading, setLoading] = useState(false);
     const startTime = Form.useWatch(["startTime"], form);
     const fetchExamRoom = async () => {
-        const response = await fetch('/api/examSchedule/getExamRoom')
-        const data = await response.json()
-        setExamRoomOption(data?.map?.((item: any) => ({
-            label: item.name,
-            value: item.id
-        })))
+        try {
+            const response = await fetch('/api/examSchedule/getExamRoom')
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error);
+            }
+            const data = await response.json()
+            setExamRoomOption(data?.map?.((item: any) => ({
+                label: item.name,
+                value: item.id
+            })))
+        } catch (error: any) {
+            message.error(error.message)
+        }
     }
 
     useEffect(() => {
@@ -33,7 +40,7 @@ const FormCreate = ({ open, onClose, refreshTable }: { open: boolean, onClose: (
             value: item.id
         })))
     }
-    
+
 
     useEffect(() => {
         fetchExamRoom()
@@ -43,18 +50,20 @@ const FormCreate = ({ open, onClose, refreshTable }: { open: boolean, onClose: (
     const handleFinish = async (values: any) => {
         try {
             setLoading(true);
-        const response = await fetch('/api/examSchedule/createExamSchedule', {
-            method: 'POST',
-            body: JSON.stringify(values)
-        })
-        setLoading(false);
-        const data = await response.json()
-        
-        message.success(data.message)
+            const response = await fetch('/api/examSchedule/createExamSchedule', {
+                method: 'POST',
+                body: JSON.stringify(values)
+            })
+            setLoading(false);
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error);
+            }
+            message.success('Thêm lịch thi thành công')
             refreshTable()
             onClose()
-        } catch (error) {
-            message.error("Lỗi khi tạo lịch thi")
+        } catch (error: any) {
+            message.error(error.message)
         } finally {
             setLoading(false);
         }
@@ -76,12 +85,12 @@ const FormCreate = ({ open, onClose, refreshTable }: { open: boolean, onClose: (
                     <Col span={12}>
                         <Form.Item name="startTime" label="Thời gian bắt đầu">
                             {/* pick hour and minute and date */}
-                            <DatePicker className="w-full"  placeholder="Chọn thời gian bắt đầu" format="HH:mm DD/MM/YYYY" showTime />
+                            <DatePicker className="w-full" placeholder="Chọn thời gian bắt đầu" format="HH:mm DD/MM/YYYY" showTime />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item name="endTime" label="Thời gian kết thúc">
-                            <DatePicker className="w-full"  placeholder="Chọn thời gian kết thúc" format="HH:mm DD/MM/YYYY" showTime />
+                            <DatePicker className="w-full" placeholder="Chọn thời gian kết thúc" format="HH:mm DD/MM/YYYY" showTime />
                         </Form.Item></Col>
                 </Row>
                 <Form.Item>

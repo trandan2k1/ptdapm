@@ -1,4 +1,5 @@
 import ExamScheduleTable from "./table";    
+import '@ant-design/v5-patch-for-react-19';
 
 const ExamSchedule = () => {
   return (

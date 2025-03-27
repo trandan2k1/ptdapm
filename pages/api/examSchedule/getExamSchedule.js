@@ -47,8 +47,17 @@ export default async function handler(req, res) {
               students: {
                 select: {
                   student: {
-                    select: { name: true, id: true },
+                    select: { name: true, id: true , studentId: true },
                   },
+                  status: true,
+                },
+              },
+              invigilators:{
+                select: {
+                  invigilator: {
+                    select: { name: true, id: true},
+                  },
+                  role: true,
                 },
               },
             },

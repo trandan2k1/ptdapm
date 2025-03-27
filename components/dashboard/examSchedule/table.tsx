@@ -1,4 +1,4 @@
-import { Button, Flex, message, Table, Tag } from "antd";
+import { Button, Flex, message, Select, Table, Tag } from "antd";
 import { useState, useEffect } from "react";
 import '@ant-design/v5-patch-for-react-19';
 import moment from 'moment';
@@ -11,14 +11,15 @@ const ExamScheduleTable = () => {
     const [loading, setLoading] = useState(false)
     const [open, setOpen] = useState(false)
     const [openDetail, setOpenDetail] = useState(null)
+    const [idEdit, setIdEdit] = useState(null)
     const columns: any = [
         {
             title: 'Mã lớp môn học',
             key: 'subjectCode',
-            render: (record: any) => { 
+            render: (record: any) => {
                 const r = record.examSessionSubjectClasses?.[0]?.subjectClass;
                 const code = r.subject?.name?.split(" ").map((word: string) => word[0]).join("").toUpperCase();
-                return <a onClick={() => { setOpenDetail(record)}} href="#">{code + ' - ' + r.class?.name}</a>
+                return <a onClick={() => { setOpenDetail(record) }} href="#">{code + ' - ' + r.class?.name}</a>
             }
         },
         {
@@ -27,18 +28,34 @@ const ExamScheduleTable = () => {
             render: (r: any) => r.examRoom?.name
         },
         {
-            title: "Trạng thái",
-            key: "status",
-            render: (r: any) => {
-                return      <Tag color={r.status === 'pending' ? 'orange' : 'green'}>
-                {r.status === 'pending' ? 'Chưa thi' : 'Hoàn thành'}
-            </Tag>
-            }
-        },
-        {
             title: 'Thời gian thi',
             key: 'examDate',
             render: (r: any) => `${moment(r.startTime).format('HH:mm')} - ${moment(r.endTime).format('HH:mm DD/MM/YYYY')}`
+        },
+        {
+            title: "Trạng thái",
+            key: "status",
+            render: (r: any) => {
+                return r.id == idEdit ? <Select
+                className="w-[150px]"
+                    options={[
+                        {
+                            value: 'pending',
+                            label: 'Chưa thi',
+                        },
+                        {
+                            value: 'graded',
+                            label: 'Đang chấm thi',
+                        },
+                        {
+                            value: 'finalized',
+                            label: 'Đã hoàn thành',
+                        }
+                    ]}
+                /> : <Tag color={r.status === 'pending' ? 'orange' : 'green'} className="cursor-pointer" onClick={() => { setIdEdit(r.id) }}>
+                    {r.status === 'pending' ? 'Chưa thi' : 'Hoàn thành'}
+                </Tag>
+            }
         },
         {
             title: "Thao tác",
@@ -61,14 +78,14 @@ const ExamScheduleTable = () => {
     const fetchExamSchedule = async () => {
         try {
             setLoading(true)
-          const response = await fetch('/api/examSchedule/getExamSchedule');
-          setLoading(false)
-          if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error);
-          }
-          const data = await response.json();
-          setData(data || []);
+            const response = await fetch('/api/examSchedule/getExamSchedule');
+            setLoading(false)
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error);
+            }
+            const data = await response.json();
+            setData(data || []);
         } catch (error: any) {
             message.error(error.message);
         }
@@ -79,19 +96,19 @@ const ExamScheduleTable = () => {
     useEffect(() => {
         fetchExamSchedule()
     }, [])
-    
+
 
     return (
         <>
-        <Flex justify="space-between" align="center">
-            <h1 className="text-2xl font-bold">Quản lý lịch thi</h1>
-            <Button type="primary" onClick={() => { setOpen(true) }} >
-                Thêm mới
-            </Button>
-        </Flex>
-        <FormCreate open={open} onClose={() => setOpen(false)} refreshTable={fetchExamSchedule} />
-        <DrawerDetail open={openDetail} onClose={() => setOpenDetail(null)} />
-        <Table loading={loading} columns={columns} dataSource={data} />
+            <Flex justify="space-between" align="center">
+                <h1 className="text-2xl font-bold">Quản lý lịch thi</h1>
+                <Button type="primary" onClick={() => { setOpen(true) }} >
+                    Thêm mới
+                </Button>
+            </Flex>
+            <FormCreate open={open} onClose={() => setOpen(false)} refreshTable={fetchExamSchedule} />
+            <DrawerDetail open={openDetail} onClose={() => setOpenDetail(null)} />
+            <Table loading={loading} columns={columns} dataSource={data} />
         </>
 
     )
