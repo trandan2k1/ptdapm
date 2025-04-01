@@ -148,8 +148,7 @@ model ExamResult {
   subjectClassId Int
   studentId      Int
   score          Float?
-  status         String @default("pending") // "pending", "graded", "finalized"
-
+  status         String @default("pending") // "pending", "examined", "graded", "finalized"
   examSession  ExamSession  @relation(fields: [examSessionId], references: [id])
   subjectClass SubjectClass @relation(fields: [subjectClassId], references: [id])
   student      User         @relation(fields: [studentId], references: [id])

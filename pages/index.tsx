@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { BookOutlined, CalendarOutlined, HomeOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { BookOutlined, CalendarOutlined, FolderViewOutlined, HomeOutlined, LogoutOutlined, PicCenterOutlined, SnippetsOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, theme, Dropdown, Button, Avatar } from 'antd';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import ExamSchedule from '../components/dashboard/examSchedule';
 import SubjectManagement from '../components/dashboard/subjectManagement';
 import UserManagement from '../components/dashboard/userManagement';
+import ExamProctoring from '@/components/dashboard/assignmentManagement/examProctoring';
+import ExamGrading from '@/components/dashboard/assignmentManagement/examGrading';
 const { Header, Content, Sider } = Layout;
 
 const Dashboard = () => {
@@ -14,7 +16,7 @@ const Dashboard = () => {
   } = theme.useToken();
   const { data: session, status } = useSession();
   const router = useRouter();
-
+  const [key, setKey] = useState('1');
   const items = [
     {
       key: '1',
@@ -34,6 +36,25 @@ const Dashboard = () => {
       icon: <UserOutlined />,
       onClick: () => setKey('3')
     },
+    {
+      key: 'quanlyphancong',
+      label: 'Quản lý phân công',
+      icon: <SnippetsOutlined />,
+      children: [
+        {
+          key: '4',
+          label: 'Phân công coi thi',
+          icon: <FolderViewOutlined />,
+          onClick: () => setKey('4')
+        },
+        {
+          key: '5',
+          label: 'Phân công chấm thi',
+          icon: <BookOutlined />,
+          onClick: () => setKey('5')
+        }
+      ]
+    },
   ]
 
   useEffect(() => {
@@ -42,10 +63,10 @@ const Dashboard = () => {
       router.push("/auth/signin");
     }
   }, [session, status, router]);
-  const [key, setKey] = useState('1');
+
   return (
     <Layout className='h-screen   '>
-      <Sider breakpoint="lg" collapsedWidth="0" className='h-screen'>
+      <Sider breakpoint="lg" collapsedWidth="0" className='h-screen' width={250}>
         <div className="h-[64px]" />
         <div style={{ display: 'flex', flexDirection: 'column'  }}>
           <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']} className='h-[calc(100vh-64px)]' items={items} />
@@ -85,6 +106,8 @@ const Dashboard = () => {
             {key === '1' && <ExamSchedule />}
             {key === '2' && <SubjectManagement />}
             {key === '3' && <UserManagement />}
+            {key === '4' && <ExamProctoring />}
+            {key === '5' && <ExamGrading />}
           </div>
         </Content>
       </Layout>

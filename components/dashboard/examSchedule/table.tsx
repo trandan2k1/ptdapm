@@ -12,6 +12,24 @@ const ExamScheduleTable = () => {
     const [open, setOpen] = useState(false)
     const [openDetail, setOpenDetail] = useState(null)
     const [idEdit, setIdEdit] = useState(null)
+    const handleChangeStatus = async (id: number, status: string) => {
+        try {
+            const response = await fetch(`/api/examSchedule/updateStatus`, {
+                method: 'PUT',
+                body: JSON.stringify({ id, status })
+            })
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error);
+            }
+            message.success('Cập nhật trạng thái thành công')
+            fetchExamSchedule()
+            setIdEdit(null)
+        } catch (error: any) {
+            message.error(error.message)
+        }
+    }
+
     const columns: any = [
         {
             title: 'Mã lớp môn học',
@@ -38,10 +56,15 @@ const ExamScheduleTable = () => {
             render: (r: any) => {
                 return r.id == idEdit ? <Select
                 className="w-[150px]"
+                    defaultValue={r.status}
                     options={[
                         {
                             value: 'pending',
                             label: 'Chưa thi',
+                        },
+                        {
+                            value: 'examined',
+                            label: 'Đã thi',
                         },
                         {
                             value: 'graded',
@@ -52,8 +75,9 @@ const ExamScheduleTable = () => {
                             label: 'Đã hoàn thành',
                         }
                     ]}
-                /> : <Tag color={r.status === 'pending' ? 'orange' : 'green'} className="cursor-pointer" onClick={() => { setIdEdit(r.id) }}>
-                    {r.status === 'pending' ? 'Chưa thi' : 'Hoàn thành'}
+                    onChange={(value) => { handleChangeStatus(r.id, value) }}
+                /> : <Tag color={r.status === 'pending' ? 'orange' : r.status === 'examined' ? 'green' : r.status === 'graded' ? 'blue' : 'purple'} className="cursor-pointer" onClick={() => { setIdEdit(r.id) }}>
+                    {r.status === 'pending' ? 'Chưa thi' : r.status === 'examined' ? 'Đã thi' : r.status === 'graded' ? 'Đang chấm thi' : 'Đã hoàn thành'}
                 </Tag>
             }
         },
